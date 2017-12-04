@@ -188,8 +188,7 @@ class MarathonSpawner(Spawner):
         retval = ' '.join(retval)
         self.log.debug("Default cmd = %s", retval)
         retval = retval.replace("{userwebport}", str(self.user_web_port))
-        self.log.debug("Userwebport is replaced %d for %d", \
-                       app_info.tasks[0].ports[0], self.user_web_port)
+        self.log.debug("Userwebport is set %d", self.user_web_port)
         self.log.debug("The new cmd = %s", retval)
         return retval
 
