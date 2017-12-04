@@ -36,6 +36,8 @@ class MarathonSpawner(Spawner):
         )
     ).tag(config=True)
 
+    user_web_port = Integer(0, help="Port that the Notebook is listening on").tag(config=True)
+
     marathon_host = Unicode(
         u'',
         help="Hostname of Marathon server").tag(config=True)
@@ -149,14 +151,25 @@ class MarathonSpawner(Spawner):
 
     def get_health_checks(self):
         health_checks = []
-        health_checks.append(MarathonHealthCheck(
-            protocol='TCP',
-            port_index=0,
-            grace_period_seconds=300,
-            interval_seconds=30,
-            timeout_seconds=20,
-            max_consecutive_failures=0
-            ))
+        if self.network_mode == "HOST":
+            health_checks.append(MarathonHealthCheck(
+                protocol='TCP',
+                port=self.user_web_port,
+                grace_period_seconds=300,
+                interval_seconds=60,
+                timeout_seconds=20,
+                max_consecutive_failures=0
+                ))
+        else:
+            health_checks.append(MarathonHealthCheck(
+                protocol='TCP',
+                port_index=0,
+                grace_period_seconds=300,
+                interval_seconds=60,
+                timeout_seconds=20,
+                max_consecutive_failures=0
+                ))
+
         return health_checks
 
     def get_volumes(self):
@@ -170,16 +183,25 @@ class MarathonSpawner(Spawner):
             volumes.append(mv)
         return volumes
 
+    def get_app_cmd(self):
+        retval = self.cmd + self.get_args()
+        self.log.debug("Default cmd = %s", relval)
+        retval = retval.replace("{userwebport}", str(self.user_web_port))
+        self.log.debug("Userwebport is replaced ", str(self.user_web_port))
+        self.log.debug("The new cmd = %s", retval)
+        return retval
+
     def get_port_mappings(self):
         port_mappings = []
-        for p in self.ports:
-            port_mappings.append(
-                MarathonContainerPortMapping(
-                    container_port=p,
-                    host_port=0,
-                    protocol='tcp'
+        if self.network_mode == "BRIDGE":
+            for p in self.ports:
+                port_mappings.append(
+                    MarathonContainerPortMapping(
+                        container_port=p,
+                        host_port=0,
+                        protocol='tcp'
+                    )
                 )
-            )
         return port_mappings
 
     def get_constraints(self):
@@ -207,7 +229,13 @@ class MarathonSpawner(Spawner):
     def get_ip_and_port(self, app_info):
         assert len(app_info.tasks) == 1
         ip = socket.gethostbyname(app_info.tasks[0].host)
-        return (ip, app_info.tasks[0].ports[0])
+        if self.network_mode == "BRIDGE":
+            port = app_info.tasks[0].ports[0]
+        else:
+            port = self.user_web_port
+        self.log.debug("%s network mode is selected. Set port = %s", \
+                       self.network_mode, str(port))
+        return (ip, port)
 
     @run_on_executor
     def get_app_info(self, app_name):
@@ -262,10 +290,10 @@ class MarathonSpawner(Spawner):
         else:
             mem_request = 1024.0
 
-        cmd = self.cmd + self.get_args()
+        # cmd = self.cmd + self.get_args()
         app_request = MarathonApp(
             id=self.container_name,
-            cmd=' '.join(cmd),
+            cmd=self.get_app_cmd(),
             env=self.get_env(),
             cpus=self.cpu_limit,
             mem=mem_request,
