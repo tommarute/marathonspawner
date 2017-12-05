@@ -249,7 +249,7 @@ class MarathonSpawner(Spawner):
     def parse_cmd(self):
         cmd = self.cmd + self.get_args()
         cmd=' '.join(cmd)
-        self.log.debug('Default cmd = %s', ' '.join(cmd))
+        self.log.debug('Default cmd = %s', cmd)
         if self.network_mode == 'HOST':
             self.log.debug('Remove default port in cmd because of network_mode is HOST.')
             return re.sub(r'--port=8888', '', cmd)
