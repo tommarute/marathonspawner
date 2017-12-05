@@ -246,6 +246,15 @@ class MarathonSpawner(Spawner):
             args.append('--hub-api-url=%s' % self._public_hub_api_url())
         return args
 
+    def parse_cmd(self):
+        cmd = self.cmd + self.get_args()
+        cmd=' '.join(cmd)
+        if self.network_mode == 'HOST':
+            self.log.debug('Remove default port in cmd.')
+            return re.sub(r'--port=[0-9]{1,}', '', cmd)
+        else:
+            return cmd
+
     @gen.coroutine
     def start(self):
         docker_container = MarathonDockerContainer(
@@ -268,12 +277,11 @@ class MarathonSpawner(Spawner):
         # defaultで入れられてしまうから消すしかない
         # https://github.com/jupyterhub/jupyterhub/blob/master/jupyterhub/spawner.py#L627
         # https://github.com/jupyterhub/jupyterhub/blob/c9db504a49deb57d3494ce331fc6c904cf0a9e57/jupyterhub/singleuser.py#L250
-        cmd = self.cmd + self.get_args()
-        self.log.debug('self.cmd + self.get_args() = %s', ' '.join(cmd))
-        cmd=' '.join(cmd)
+        self.log.debug('Default cmd = %s', ' '.join(cmd))
+
         app_request = MarathonApp(
             id=self.container_name,
-            cmd=re.sub(r'--port=[0-9]{1,}', '', cmd),
+            cmd=self.parse_cmd(),
             env=self.get_env(),
             cpus=self.cpu_limit,
             mem=mem_request,
