@@ -249,8 +249,9 @@ class MarathonSpawner(Spawner):
     def parse_cmd(self):
         cmd = self.cmd + self.get_args()
         cmd=' '.join(cmd)
+        self.log.debug('Default cmd = %s', ' '.join(cmd))
         if self.network_mode == 'HOST':
-            self.log.debug('Remove default port in cmd.')
+            self.log.debug('Remove default port in cmd because of network_mode is HOST.')
             return re.sub(r'--port=8888', '', cmd)
         else:
             return cmd
@@ -272,8 +273,6 @@ class MarathonSpawner(Spawner):
             mem_request = self.mem_limit / 1024.0 / 1024.0
         else:
             mem_request = 1024.0
-
-        self.log.debug('Default cmd = %s', ' '.join(cmd))
 
         app_request = MarathonApp(
             id=self.container_name,
