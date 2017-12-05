@@ -251,7 +251,7 @@ class MarathonSpawner(Spawner):
         cmd=' '.join(cmd)
         self.log.debug('Default cmd = %s', cmd)
         if self.network_mode == 'HOST':
-            self.log.debug('Replace configured port from cmd to $PORT ' +
+            self.log.info('Replace configured port from cmd to $PORT ' +
                 'because of network_mode is HOST.')
             return re.sub(r'(--port=)([0-9]{1,})', r'\1$PORT', cmd)
         else:
