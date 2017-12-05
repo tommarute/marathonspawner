@@ -275,11 +275,6 @@ class MarathonSpawner(Spawner):
         else:
             mem_request = 1024.0
 
-        # 多分self.get_args()からの返り値に--port=8888入ってる
-        # defaultで入れられてしまうから消すしかない
-        # https://github.com/jupyterhub/jupyterhub/blob/master/jupyterhub/spawner.py#L627
-        # https://github.com/jupyterhub/jupyterhub/blob/c9db504a49deb57d3494ce331fc6c904cf0a9e57/jupyterhub/singleuser.py#L250
-
         app_request = MarathonApp(
             id=self.container_name,
             cmd=self.parse_cmd(),
