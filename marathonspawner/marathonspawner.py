@@ -251,7 +251,7 @@ class MarathonSpawner(Spawner):
         cmd=' '.join(cmd)
         if self.network_mode == 'HOST':
             self.log.debug('Remove default port in cmd.')
-            return re.sub(r'--port=[0-9]{1,}', '', cmd)
+            return re.sub(r'--port=8888', '', cmd)
         else:
             return cmd
 
