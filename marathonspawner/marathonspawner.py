@@ -249,8 +249,9 @@ class MarathonSpawner(Spawner):
     def parse_cmd(self):
         cmd = self.cmd + self.get_args()
         cmd=' '.join(cmd)
+        self.log.debug('Default cmd = %s', ' '.join(cmd))
         if self.network_mode == 'HOST':
-            self.log.debug('Remove default port in cmd.')
+            self.log.debug('Remove default port in cmd because of network_mode is HOST.')
             return re.sub(r'--port=8888', '', cmd)
         else:
             return cmd
@@ -277,7 +278,6 @@ class MarathonSpawner(Spawner):
         # defaultで入れられてしまうから消すしかない
         # https://github.com/jupyterhub/jupyterhub/blob/master/jupyterhub/spawner.py#L627
         # https://github.com/jupyterhub/jupyterhub/blob/c9db504a49deb57d3494ce331fc6c904cf0a9e57/jupyterhub/singleuser.py#L250
-        self.log.debug('Default cmd = %s', ' '.join(cmd))
 
         app_request = MarathonApp(
             id=self.container_name,
