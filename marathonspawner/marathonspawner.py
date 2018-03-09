@@ -81,6 +81,15 @@ class MarathonSpawner(Spawner):
         help="Public IP address of the hub"
         ).tag(config=True)
 
+    marathon_params = List(
+        [],
+        help=dedent(
+            """
+            The parameters object allows users to supply arbitrary command-line options,
+            for the docker run command executed by the Mesos containerizer.
+            """)
+        ).tag(config=True)
+
     @observe('hub_ip_connect')
     def _ip_connect_changed(self, change):
         if jupyterhub.version_info >= (0, 8):
@@ -259,10 +268,21 @@ class MarathonSpawner(Spawner):
 
     @gen.coroutine
     def start(self):
+        # TODO Set swap limit
+        # https://github.com/thefactory/marathon-python/blob/b6d06f4091680545b7cb576c2b7d1987df0fa5a4/marathon/models/container.py#L58
+
+        # "parameters": [
+        # {
+        #     "key": "memory-swap",
+        #     "value": "16m"
+        # }
+        # https://groups.google.com/forum/#!topic/marathon-framework/bZJFi9Rmeug
         docker_container = MarathonDockerContainer(
             image=self.app_image,
             network=self.network_mode,
-            port_mappings=self.get_port_mappings())
+            port_mappings=self.get_port_mappings(),
+            params=self.marathon_params),
+            # params = [{'key': 'memory-swap', 'value': '16m'}]
 
         app_container = MarathonContainer(
             docker=docker_container,
