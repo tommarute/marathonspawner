@@ -281,7 +281,7 @@ class MarathonSpawner(Spawner):
             image=self.app_image,
             network=self.network_mode,
             port_mappings=self.get_port_mappings(),
-            params=self.marathon_params),
+            parameters=self.marathon_params),
             # params = [{'key': 'memory-swap', 'value': '16m'}]
 
         app_container = MarathonContainer(
