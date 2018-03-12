@@ -276,9 +276,9 @@ class MarathonSpawner(Spawner):
         #     "value": "16m"
         # }
         # https://groups.google.com/forum/#!topic/marathon-framework/bZJFi9Rmeug
-        for key in self.marathon_params.get_key():
+        for param in self.marathon_params:
             self.log.debug('marathon_params: key = %s, value = %s',
-                           key, self.marathon_params.get(key))
+                           param['key'], param['value'])
 
         docker_container = MarathonDockerContainer(
             image=self.app_image,
