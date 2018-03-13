@@ -268,14 +268,6 @@ class MarathonSpawner(Spawner):
 
     @gen.coroutine
     def start(self):
-        # TODO Set swap limit
-        # https://github.com/thefactory/marathon-python/blob/b6d06f4091680545b7cb576c2b7d1987df0fa5a4/marathon/models/container.py#L58
-        # "parameters": [
-        # {
-        #     "key": "memory-swap",
-        #     "value": "16m"
-        # }
-        # https://groups.google.com/forum/#!topic/marathon-framework/bZJFi9Rmeug
         for param in self.marathon_params:
             self.log.debug('marathon_params: key = %s, value = %s',
                            param['key'], param['value'])
