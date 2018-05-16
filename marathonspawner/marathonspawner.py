@@ -22,6 +22,8 @@ from .volumenaming import default_format_volume_name
 import jupyterhub
 _jupyterhub_xy = '%i.%i' % (jupyterhub.version_info[:2])
 
+import re
+
 class MarathonSpawner(Spawner):
 
     app_image = Unicode("jupyterhub/singleuser:%s" % _jupyterhub_xy, config=True)
@@ -263,9 +265,11 @@ class MarathonSpawner(Spawner):
             mem_request = 1024.0
 
         cmd = self.cmd + self.get_args()
+        self.log.debug('self.cmd + self.get_args() = %s', ' '.join(cmd))
+        cmd=' '.join(cmd)
         app_request = MarathonApp(
             id=self.container_name,
-            cmd=' '.join(cmd),
+            cmd=re.sub(r'--port=[0-9]{1,}', '', cmd),
             env=self.get_env(),
             cpus=self.cpu_limit,
             mem=mem_request,
